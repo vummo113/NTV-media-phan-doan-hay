@@ -8,6 +8,7 @@ import sqlite3
 import json
 import asyncio
 import shutil
+import traceback
 from datetime import datetime, timedelta, timezone
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
@@ -185,7 +186,7 @@ def _run_job_thread(job_id: str, user_id: int, youtube_url: str, min_dur: int, m
         _progress[job_id]["message"] = f"Xong! Đã tạo {len(results)} clip."
 
     except Exception as exc:
-        err = str(exc)
+        err = traceback.format_exc()
         with get_db() as db:
             db.execute(
                 "UPDATE jobs SET status='error', error_msg=? WHERE id=?",
@@ -194,7 +195,7 @@ def _run_job_thread(job_id: str, user_id: int, youtube_url: str, min_dur: int, m
             db.commit()
         _progress[job_id]["done"] = True
         _progress[job_id]["error"] = err
-        _progress[job_id]["message"] = f"Lỗi: {err[:200]}"
+        _progress[job_id]["message"] = f"Lỗi: {str(exc)[:200]}"
 
 
 # ── App lifecycle ─────────────────────────────────────────────────────────────
