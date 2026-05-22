@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Đăng nhập — YouTube Clipper</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gray-950 flex items-center justify-center">
+  <div class="w-full max-w-sm">
+    <div class="text-center mb-8">
+      <div class="text-4xl mb-2">🎬</div>
+      <h1 class="text-2xl font-bold text-white">YouTube Clipper</h1>
+      <p class="text-gray-400 text-sm mt-1">Tự động cắt clip viral bằng AI</p>
+    </div>
+
+    <form method="post" action="/login" class="bg-gray-900 rounded-2xl p-8 shadow-2xl border border-gray-800">
+      {% if error %}
+      <div class="mb-4 p-3 bg-red-900/50 border border-red-700 rounded-lg text-red-300 text-sm">
+        {{ error }}
+      </div>
+      {% endif %}
+
+      <div class="mb-4">
+        <label class="block text-gray-400 text-sm mb-1">Tên đăng nhập</label>
+        <input name="username" type="text" required autofocus
+          class="w-full bg-gray-800 text-white rounded-lg px-4 py-2.5 border border-gray-700
+                 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500" />
+      </div>
+
+      <div class="mb-6">
+        <label class="block text-gray-400 text-sm mb-1">Mật khẩu</label>
+        <input name="password" type="password" required
+          class="w-full bg-gray-800 text-white rounded-lg px-4 py-2.5 border border-gray-700
+                 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500" />
+      </div>
+
+      <button type="submit"
+        class="w-full bg-violet-600 hover:bg-violet-500 text-white font-semibold py-2.5 rounded-lg
+               transition-colors duration-150">
+        Đăng nhập
+      </button>
+    </form>
+  </div>
+</body>
+</html>

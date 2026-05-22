@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Đang xử lý — YouTube Clipper</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gray-950 text-white">
+
+  <!-- Navbar -->
+  <nav class="bg-gray-900 border-b border-gray-800 px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <a href="/dashboard" class="flex items-center gap-2 hover:opacity-80">
+        <span class="text-xl">🎬</span>
+        <span class="font-bold text-lg">YouTube Clipper</span>
+      </a>
+    </div>
+    <div class="flex items-center gap-4">
+      <span class="text-sm text-gray-400">{{ user.username }}</span>
+      <a href="/logout" class="text-sm text-gray-500 hover:text-gray-300">Đăng xuất</a>
+    </div>
+  </nav>
+
+  <div class="max-w-2xl mx-auto px-4 py-12">
+    <div class="bg-gray-900 rounded-2xl p-8 border border-gray-800">
+
+      <!-- URL display -->
+      <p class="text-gray-500 text-sm mb-6 truncate">🔗 {{ job.youtube_url }}</p>
+
+      <!-- Progress section -->
+      <div id="progress-section">
+        <div class="flex items-center justify-between mb-2">
+          <span id="status-msg" class="text-sm text-gray-300">Đang khởi động…</span>
+          <span id="pct-label" class="text-sm font-mono text-violet-400">0%</span>
+        </div>
+        <div class="w-full bg-gray-800 rounded-full h-3 overflow-hidden">
+          <div id="progress-bar"
+            class="h-3 rounded-full bg-violet-600 transition-all duration-500"
+            style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- Error banner (hidden initially) -->
+      <div id="error-banner" class="hidden mt-6 p-4 bg-red-900/50 border border-red-700 rounded-xl text-red-300 text-sm"></div>
+
+      <!-- Clips result (hidden initially) -->
+      <div id="clips-section" class="hidden mt-8">
+        <h2 class="text-lg font-semibold mb-4">Kết quả</h2>
+        <div id="clips-list" class="space-y-4"></div>
+        <a href="/dashboard" class="mt-6 block text-center text-sm text-violet-400 hover:text-violet-300">
+          ← Về trang chủ
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+  const jobId = "{{ job.id }}";
+  const bar   = document.getElementById("progress-bar");
+  const msg   = document.getElementById("status-msg");
+  const pct   = document.getElementById("pct-label");
+  const errBanner = document.getElementById("error-banner");
+  const clipsSection = document.getElementById("clips-section");
+  const clipsList = document.getElementById("clips-list");
+
+  const es = new EventSource(`/api/progress/${jobId}`);
+  es.onmessage = (e) => {
+    const data = JSON.parse(e.data);
+    bar.style.width = data.percent + "%";
+    pct.textContent = data.percent + "%";
+    msg.textContent = data.message || "Đang xử lý…";
+
+    if (data.done) {
+      es.close();
+      if (data.error) {
+        errBanner.textContent = data.error;
+        errBanner.classList.remove("hidden");
+      } else {
+        loadClips();
+      }
+    }
+  };
+
+  async function loadClips() {
+    const res = await fetch(`/api/job/${jobId}/clips`);
+    const clips = await res.json();
+    if (!clips.length) {
+      errBanner.textContent = "Không tìm được đoạn nào đạt tiêu chí. Thử video khác!";
+      errBanner.classList.remove("hidden");
+      return;
+    }
+    clipsList.innerHTML = clips.map(clip => `
+      <div class="bg-gray-800 rounded-xl p-4 border border-gray-700">
+        <div class="flex items-start justify-between gap-4">
+          <div class="flex-1 min-w-0">
+            <p class="font-semibold">${clip.title}</p>
+            <p class="text-violet-400 text-sm mt-0.5">${clip.hashtags}</p>
+            ${clip.hook ? `<p class="text-gray-400 text-sm mt-1 italic">"${clip.hook}"</p>` : ""}
+            <p class="text-xs text-gray-500 mt-2">⏱ ${clip.duration}s · Clip ${clip.clip_number}</p>
+          </div>
+          <a href="/download/${clip.job_id}/${clip.filename}"
+            class="shrink-0 bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium
+                   px-4 py-2 rounded-lg transition-colors">
+            ⬇ Tải về
+          </a>
+        </div>
+        ${clip.reason ? `<p class="text-gray-500 text-xs mt-3 border-t border-gray-700 pt-3">${clip.reason}</p>` : ""}
+      </div>
+    `).join("");
+    clipsSection.classList.remove("hidden");
+  }
+  </script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quản trị — YouTube Clipper</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gray-950 text-white">
+
+  <nav class="bg-gray-900 border-b border-gray-800 px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <a href="/dashboard" class="flex items-center gap-2 hover:opacity-80">
+        <span class="text-xl">🎬</span>
+        <span class="font-bold text-lg">YouTube Clipper</span>
+      </a>
+      <span class="text-gray-600">/</span>
+      <span class="text-gray-400 text-sm">Quản trị</span>
+    </div>
+    <div class="flex items-center gap-4">
+      <a href="/dashboard" class="text-sm text-violet-400 hover:text-violet-300">Dashboard</a>
+      <a href="/logout" class="text-sm text-gray-500 hover:text-gray-300">Đăng xuất</a>
+    </div>
+  </nav>
+
+  <div class="max-w-4xl mx-auto px-4 py-10">
+
+    <!-- Create user -->
+    <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800 mb-8">
+      <h2 class="text-lg font-semibold mb-4">Tạo tài khoản mới</h2>
+      <form method="post" action="/admin/users/create" class="flex flex-wrap gap-3 items-end">
+        <div>
+          <label class="block text-gray-400 text-xs mb-1">Tên đăng nhập</label>
+          <input name="username" type="text" required
+            class="bg-gray-800 text-white rounded-lg px-3 py-2 border border-gray-700
+                   focus:outline-none focus:border-violet-500 text-sm w-40" />
+        </div>
+        <div>
+          <label class="block text-gray-400 text-xs mb-1">Mật khẩu</label>
+          <input name="password" type="text" required
+            class="bg-gray-800 text-white rounded-lg px-3 py-2 border border-gray-700
+                   focus:outline-none focus:border-violet-500 text-sm w-40" />
+        </div>
+        <div class="flex items-center gap-2 pb-2">
+          <input name="is_admin" type="checkbox" value="1" id="is_admin_chk" class="accent-violet-500" />
+          <label for="is_admin_chk" class="text-sm text-gray-400">Admin</label>
+        </div>
+        <button type="submit"
+          class="bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium
+                 px-5 py-2 rounded-lg transition-colors">
+          Tạo
+        </button>
+      </form>
+    </div>
+
+    <!-- User list -->
+    <div class="bg-gray-900 rounded-2xl border border-gray-800 mb-8 overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-800">
+        <h2 class="font-semibold">Danh sách người dùng ({{ users | length }})</h2>
+      </div>
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-gray-500 text-xs border-b border-gray-800">
+            <th class="px-6 py-3 text-left">Tên đăng nhập</th>
+            <th class="px-6 py-3 text-left">Vai trò</th>
+            <th class="px-6 py-3 text-left">Ngày tạo</th>
+            <th class="px-6 py-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+          <tr class="border-b border-gray-800 last:border-0 hover:bg-gray-800/50">
+            <td class="px-6 py-3 font-medium">{{ u.username }}</td>
+            <td class="px-6 py-3">
+              {% if u.is_admin %}
+              <span class="text-xs bg-violet-900 text-violet-300 px-2 py-0.5 rounded-full">Admin</span>
+              {% else %}
+              <span class="text-gray-500">User</span>
+              {% endif %}
+            </td>
+            <td class="px-6 py-3 text-gray-500">{{ u.created_at[:10] }}</td>
+            <td class="px-6 py-3 text-right">
+              {% if u.username != user.username %}
+              <form method="post" action="/admin/users/delete"
+                    onsubmit="return confirm('Xóa tài khoản {{ u.username }}?')">
+                <input type="hidden" name="user_id" value="{{ u.id }}" />
+                <button class="text-red-400 hover:text-red-300 text-xs">Xóa</button>
+              </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Recent jobs -->
+    <div class="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-800">
+        <h2 class="font-semibold">Lịch sử xử lý (50 gần nhất)</h2>
+      </div>
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-gray-500 text-xs border-b border-gray-800">
+            <th class="px-6 py-3 text-left">Người dùng</th>
+            <th class="px-6 py-3 text-left">URL</th>
+            <th class="px-6 py-3 text-left">Trạng thái</th>
+            <th class="px-6 py-3 text-left">Thời gian</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for j in jobs %}
+          <tr class="border-b border-gray-800 last:border-0 hover:bg-gray-800/50">
+            <td class="px-6 py-3 font-medium">{{ j.username }}</td>
+            <td class="px-6 py-3 max-w-xs">
+              <a href="/job/{{ j.id }}" class="text-gray-400 hover:text-white truncate block">
+                {{ j.youtube_url }}
+              </a>
+            </td>
+            <td class="px-6 py-3">
+              <span class="text-xs px-2 py-0.5 rounded-full
+                {% if j.status == 'done' %}bg-green-900 text-green-300
+                {% elif j.status == 'error' %}bg-red-900 text-red-300
+                {% else %}bg-yellow-900 text-yellow-300{% endif %}">
+                {{ j.status }}
+              </span>
+            </td>
+            <td class="px-6 py-3 text-gray-500">{{ j.created_at[:16].replace("T"," ") }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</body>
+</html>
