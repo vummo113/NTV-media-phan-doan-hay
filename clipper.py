@@ -53,8 +53,7 @@ def download_video_and_transcript(youtube_url: str, work_dir: str, progress: Pro
         "-f", "best[ext=mp4]/best[ext=webm]/best",
         "--output", os.path.join(work_dir, "video.%(ext)s"),
         "--no-playlist",
-        "--extractor-args", "youtube:player_client=android,web",
-        "--js-runtimes", "node",
+        "--extractor-args", "youtube:player_client=ios,mweb",
         *cookies,
         youtube_url,
     ])
