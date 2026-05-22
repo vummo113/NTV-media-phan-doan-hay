@@ -50,9 +50,11 @@ def download_video_and_transcript(youtube_url: str, work_dir: str, progress: Pro
 
     progress("Đang tải video (có thể mất vài phút)…", 15)
     res = _ytdlp([
-        "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
+        "-f", "best[ext=mp4]/best[ext=webm]/best",
         "--output", os.path.join(work_dir, "video.%(ext)s"),
         "--no-playlist",
+        "--extractor-args", "youtube:player_client=android,web",
+        "--js-runtimes", "node",
         *cookies,
         youtube_url,
     ])
