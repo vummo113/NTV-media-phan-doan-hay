@@ -180,6 +180,8 @@ start_time và end_time là số giây (float). Đảm bảo end_time - start_ti
             raise ValueError(f"JSON lỗi: {e}\nNội dung: {match.group()[:300]}")
 
     clips = result.get("clips", [])
+    if not clips:
+        raise ValueError(f"Claude trả về 0 clip. Raw response:\n{result_text[:500]}")
     progress(f"Claude chọn được {len(clips)} đoạn hay", 55)
     return clips
 
@@ -227,6 +229,8 @@ def cut_clips(
             out_path,
         ], capture_output=True, text=True)
 
+        if res.returncode != 0:
+            raise RuntimeError(f"ffmpeg lỗi clip {clip_info['id']}: {res.stderr[-300:]}")
         if res.returncode == 0:
             results.append({
                 "clip_number": clip_info["id"],
