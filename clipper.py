@@ -22,8 +22,20 @@ def _ytdlp(args: list, silent: bool = True) -> subprocess.CompletedProcess:
     return subprocess.run([YTDLP_PATH] + args, capture_output=True, text=True)
 
 
+def _cookie_args() -> list:
+    """Return --cookies flag if YOUTUBE_COOKIES env var is set."""
+    cookies_content = os.environ.get("YOUTUBE_COOKIES", "")
+    if not cookies_content:
+        return []
+    cookie_path = "/tmp/yt_cookies.txt"
+    with open(cookie_path, "w") as f:
+        f.write(cookies_content)
+    return ["--cookies", cookie_path]
+
+
 def download_video_and_transcript(youtube_url: str, work_dir: str, progress: Progress):
     os.makedirs(work_dir, exist_ok=True)
+    cookies = _cookie_args()
 
     progress("Đang tải phụ đề / transcript…", 5)
     _ytdlp([
@@ -32,6 +44,7 @@ def download_video_and_transcript(youtube_url: str, work_dir: str, progress: Pro
         "--sub-format", "json3/vtt/best",
         "--skip-download",
         "--output", os.path.join(work_dir, "transcript"),
+        *cookies,
         youtube_url,
     ])
 
@@ -40,6 +53,7 @@ def download_video_and_transcript(youtube_url: str, work_dir: str, progress: Pro
         "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
         "--output", os.path.join(work_dir, "video.%(ext)s"),
         "--no-playlist",
+        *cookies,
         youtube_url,
     ])
     if res.returncode != 0 and not any(f.startswith("video.") for f in os.listdir(work_dir)):
