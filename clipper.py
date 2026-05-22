@@ -27,6 +27,8 @@ def _cookie_args() -> list:
     cookies_content = os.environ.get("YOUTUBE_COOKIES", "")
     if not cookies_content:
         return []
+    # Railway escapes newlines as \n literal — restore them
+    cookies_content = cookies_content.replace("\\n", "\n")
     cookie_path = "/tmp/yt_cookies.txt"
     with open(cookie_path, "w") as f:
         f.write(cookies_content)
@@ -53,7 +55,9 @@ def download_video_and_transcript(youtube_url: str, work_dir: str, progress: Pro
         "-f", "best[ext=mp4]/best[ext=webm]/best",
         "--output", os.path.join(work_dir, "video.%(ext)s"),
         "--no-playlist",
-        "--extractor-args", "youtube:player_client=tv_embedded,web",
+        "--extractor-args", "youtube:player_client=web",
+        "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+        "--add-headers", "Accept-Language:en-US,en;q=0.9",
         *cookies,
         youtube_url,
     ])
