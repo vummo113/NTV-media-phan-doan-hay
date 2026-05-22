@@ -164,19 +164,25 @@ start_time và end_time là số giây (float). Đảm bảo end_time - start_ti
 
     response = client.messages.create(
         model="claude-sonnet-4-6",
-        max_tokens=2000,
+        max_tokens=4096,
         messages=[{"role": "user", "content": prompt}],
     )
     result_text = response.content[0].text.strip()
+
+    # Strip markdown code fences if present
+    result_text = re.sub(r"^```(?:json)?\s*", "", result_text)
+    result_text = re.sub(r"\s*```$", "", result_text)
 
     try:
         result = json.loads(result_text)
     except json.JSONDecodeError:
         match = re.search(r"\{.*\}", result_text, re.DOTALL)
-        if match:
+        if not match:
+            raise ValueError(f"Claude không trả về JSON hợp lệ:\n{result_text[:300]}")
+        try:
             result = json.loads(match.group())
-        else:
-            raise ValueError("Claude không trả về JSON hợp lệ")
+        except json.JSONDecodeError as e:
+            raise ValueError(f"JSON lỗi: {e}\nNội dung: {match.group()[:300]}")
 
     clips = result.get("clips", [])
     progress(f"Claude chọn được {len(clips)} đoạn hay", 55)
