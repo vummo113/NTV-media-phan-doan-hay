@@ -36,11 +36,14 @@ def download_video_and_transcript(youtube_url: str, work_dir: str, progress: Pro
     ])
 
     progress("Đang tải video (có thể mất vài phút)…", 15)
-    _ytdlp([
+    res = _ytdlp([
         "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
         "--output", os.path.join(work_dir, "video.%(ext)s"),
+        "--no-playlist",
         youtube_url,
     ])
+    if res.returncode != 0 and not any(f.startswith("video.") for f in os.listdir(work_dir)):
+        raise RuntimeError(f"yt-dlp lỗi (code {res.returncode}):\nSTDOUT: {res.stdout[-500:]}\nSTDERR: {res.stderr[-500:]}")
 
     all_files = os.listdir(work_dir) if os.path.exists(work_dir) else []
     video_file = next(
