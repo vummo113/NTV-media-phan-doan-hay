@@ -42,13 +42,14 @@ def download_video_and_transcript(youtube_url: str, work_dir: str, progress: Pro
         youtube_url,
     ])
 
+    all_files = os.listdir(work_dir) if os.path.exists(work_dir) else []
     video_file = next(
-        (os.path.join(work_dir, f) for f in os.listdir(work_dir)
-         if f.startswith("video.") and f.endswith((".mp4", ".mkv", ".webm"))),
+        (os.path.join(work_dir, f) for f in all_files
+         if f.startswith("video.")),
         None,
     )
     if not video_file:
-        raise FileNotFoundError("Không tải được video")
+        raise FileNotFoundError(f"Không tải được video. Files trong thư mục: {all_files}")
 
     transcript_file = next(
         (os.path.join(work_dir, f) for f in os.listdir(work_dir)
