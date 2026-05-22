@@ -19,7 +19,7 @@ Progress = Callable[[str, int], None]  # (message, percent 0-100)
 
 
 def _ytdlp(args: list, silent: bool = True) -> subprocess.CompletedProcess:
-    return subprocess.run([YTDLP_PATH] + args, capture_output=silent, text=True)
+    return subprocess.run([YTDLP_PATH] + args, capture_output=True, text=True)
 
 
 def download_video_and_transcript(youtube_url: str, work_dir: str, progress: Progress):
