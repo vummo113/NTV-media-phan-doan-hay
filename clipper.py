@@ -119,29 +119,24 @@ TRANSCRIPT (có timecode [MM:SS]):
 Tổng thời lượng video: {int(video_duration // 60)}:{int(video_duration % 60):02d}
 
 ══════════════════════════════════════
-GIỮ đoạn khi hội đủ CẢ 5 tiêu chí sau:
+TIÊU CHÍ ƯU TIÊN (càng đủ càng tốt):
 ══════════════════════════════════════
 1. Hook 0–3 giây đầu: tạo câu hỏi hoặc yếu tố bất ngờ ngay lập tức
 2. Có ít nhất 1 khoảnh khắc "aha" — thông tin người xem chưa biết
 3. Tự đứng được — không cần xem phần trước mới hiểu
-4. Người xem thấy ảnh hưởng trực tiếp đến họ (tiền bạc, tương lai, an toàn)
-5. Có thể hình ảnh hóa — con số cụ thể, so sánh rõ ràng, địa điểm/bản đồ thực tế
+4. Người xem thấy ảnh hưởng đến họ (tiền bạc, tương lai, an toàn, cảm xúc)
+5. Có thể hình ảnh hóa — con số cụ thể, so sánh rõ ràng, địa điểm thực tế
+
+Ưu tiên đoạn đủ cả 5. Nếu không có đủ, chọn đoạn đạt ít nhất 3/5 tiêu chí và có tiêu chí 3 (tự đứng được).
 
 ══════════════════════════════════════
-CẮT NGAY khi rơi vào bất kỳ trường hợp nào:
-══════════════════════════════════════
-- Câu đầu không có hook (mở đầu nhạt, không gây tò mò)
-- Chỉ giải thích điều mọi người đã biết
-- Phải xem phần trước mới hiểu được nội dung
-- Phân tích học thuật xa vời, không liên quan trực tiếp đến người xem
-- Toàn chữ trừu tượng, triết học, hoặc định nghĩa thuật ngữ
-
-══════════════════════════════════════
-TỰ ĐỘNG LOẠI (không cần đánh giá):
+TỰ ĐỘNG LOẠI (không chấm điểm):
 ══════════════════════════════════════
 - Quảng cáo sản phẩm/dịch vụ
 - Kêu gọi subscribe / like / follow / share
-- Host hỏi định nghĩa hoặc giải thích thuật ngữ cơ bản
+- Chào hỏi đầu video / kết thúc xã giao
+
+QUAN TRỌNG: Bắt buộc phải trả về đúng {MAX_CLIPS} clip. Nếu không đủ clip tốt, chọn các đoạn tốt nhất còn lại.
 
 Độ dài mỗi clip PHẢI trong khoảng {min_dur}–{max_dur} giây.
 
@@ -154,7 +149,7 @@ Trả về JSON thuần (không markdown):
       "end_time": 90.0,
       "title": "Tiêu đề clip hấp dẫn cho TikTok/Shorts",
       "hashtags": "#trending #viral #shorts",
-      "reason": "Lý do đoạn này đủ cả 5 tiêu chí",
+      "reason": "Lý do chọn đoạn này",
       "hook": "Câu hook mở đầu trong 0–3 giây đầu"
     }}
   ]
